@@ -1,35 +1,48 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { FiEye, FiEyeOff } from 'react-icons/fi' // Import eye icons
+import { FiEye, FiEyeOff } from 'react-icons/fi'
 import Link from 'next/link'
+import { signup, SignupResponse } from './_actions/signup'
 
 export default function SignUpPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({ email: '', password: '', confirmPassword: '' })
-  const [error, setError] = useState('')
-  const [showPassword, setShowPassword] = useState(false) // State for toggling password visibility
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false) // State for toggling confirm password visibility
+  const [error, setError] = useState<string | null>(null)
+  const [isPending, setIsPending] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError('')
+    setError(null)
+    setIsPending(true)
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
+      setIsPending(false)
       return
     }
 
-    // Simulate successful signup
-    alert('Sign-Up Successful!')
-    router.push('/login')
+    const result: SignupResponse = await signup({
+      email: formData.email,
+      password: formData.password,
+    })
+
+    setIsPending(false)
+
+    if (result.success) {
+      router.push('/home')
+    } else {
+      setError(result.error || 'Sign-up failed')
+    }
   }
 
   return (
@@ -48,7 +61,7 @@ export default function SignUpPage() {
           />
           <div className="relative">
             <Input
-              type={showPassword ? 'text' : 'password'} // Toggle between text and password
+              type={showPassword ? 'text' : 'password'}
               name="password"
               placeholder="Password"
               value={formData.password}
@@ -58,14 +71,14 @@ export default function SignUpPage() {
             <button
               type="button"
               className="absolute right-2 top-2"
-              onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+              onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <FiEyeOff /> : <FiEye />} {/* Eye icon */}
+              {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
           </div>
           <div className="relative">
             <Input
-              type={showConfirmPassword ? 'text' : 'password'} // Toggle between text and password
+              type={showConfirmPassword ? 'text' : 'password'}
               name="confirmPassword"
               placeholder="Confirm Password"
               value={formData.confirmPassword}
@@ -75,13 +88,13 @@ export default function SignUpPage() {
             <button
               type="button"
               className="absolute right-2 top-2"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)} // Toggle confirm password visibility
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
-              {showConfirmPassword ? <FiEyeOff /> : <FiEye />} {/* Eye icon */}
+              {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
             </button>
           </div>
-          <Button type="submit" className="w-full">
-            Sign Up
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? 'Signing Up...' : 'Sign Up'}
           </Button>
         </form>
         <p className="text-sm text-center mt-4">

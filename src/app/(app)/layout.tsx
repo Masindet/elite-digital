@@ -6,7 +6,7 @@ import { Navbar } from '@/components/ui/navbar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'TechStore - Premium Electronics',
+  title: 'Elite Digital',
   description: 'Your one-stop shop for premium electronics and gadgets',
 }
 

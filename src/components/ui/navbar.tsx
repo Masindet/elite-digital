@@ -1,12 +1,23 @@
 'use client'
 
-import { ShoppingCart, Menu, X, Search } from 'lucide-react'
+import { ShoppingCart, Menu, X, Search, User } from 'lucide-react'
 import { Button } from './button'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getUser } from '@/app/(app)/_actions/getUser'
+import LogoutButton from '@/app/(app)/components/LogoutButton'
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    async function fetchUser() {
+      const loggedInUser = await getUser()
+      setUser(loggedInUser)
+    }
+    fetchUser()
+  }, [])
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -23,7 +34,7 @@ export function Navbar() {
           {/* Logo and primary navigation */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold">TechStore</span>
+              <span className="text-2xl font-bold">EliteDigital</span>
             </Link>
             <div className="hidden md:block ml-10">
               <div className="flex items-center space-x-4">
@@ -64,6 +75,27 @@ export function Navbar() {
                 </span>
               </Link>
             </Button>
+
+            {user ? (
+              // User logged in: Show Profile + Logout
+              <div className="relative ml-4">
+                <User className="h-6 w-6 cursor-pointer" />
+                <div className="absolute right-0 mt-2 bg-white shadow-md rounded-md p-2">
+                  <LogoutButton />
+                </div>
+              </div>
+            ) : (
+              // User not logged in: Show Login & Signup
+              <>
+                <Button variant="outline" asChild className="ml-4">
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button variant="default" asChild className="ml-2">
+                  <Link href="/signup">Sign Up</Link>
+                </Button>
+              </>
+            )}
+
             <Button
               variant="ghost"
               size="icon"
