@@ -16,6 +16,7 @@ export default function LogoutButton() {
 
     if (result.success) {
       router.refresh() // Refresh to reflect logout state
+      window.location.reload()
     } else {
       alert('Logout failed')
     }

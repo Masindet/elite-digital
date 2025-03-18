@@ -1,34 +1,53 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { FiEye, FiEyeOff } from 'react-icons/fi' // Import eye icons
+import { FiEye, FiEyeOff } from 'react-icons/fi'
 import Link from 'next/link'
+import { login } from './_actions/login' // Adjust path if needed
 
 export default function LoginPage() {
-  const router = useRouter()
   const [formData, setFormData] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
-  const [showPassword, setShowPassword] = useState(false) // State for toggling password visibility
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
+    setIsSubmitting(true)
 
-    // Simulate successful login
-    if (formData.email === '' || formData.password === '') {
+    if (!formData.email || !formData.password) {
       setError('Please fill in all fields.')
+      setIsSubmitting(false)
       return
     }
 
-    alert('Login Successful!')
-    router.push('/dashboard') // Redirect to the dashboard or another page
+    try {
+      const result = await login({
+        email: formData.email,
+        password: formData.password,
+      })
+
+      if (result.success) {
+        window.location.href = '/' // Navigate to homepage
+        setTimeout(() => {
+          window.location.reload()
+        }, 10000)
+      } else {
+        setError(result.error || 'Login failed')
+      }
+    } catch (err) {
+      console.error('Login Error:', err)
+      setError('Something went wrong')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -47,7 +66,7 @@ export default function LoginPage() {
           />
           <div className="relative">
             <Input
-              type={showPassword ? 'text' : 'password'} // Toggle between text and password
+              type={showPassword ? 'text' : 'password'}
               name="password"
               placeholder="Password"
               value={formData.password}
@@ -56,19 +75,19 @@ export default function LoginPage() {
             />
             <button
               type="button"
-              className="absolute right-2 top-2"
-              onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+              className="absolute right-2 top-2 text-gray-500 hover:text-black"
+              onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <FiEyeOff /> : <FiEye />} {/* Eye icon */}
+              {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
           </div>
-          <Button type="submit" className="w-full">
-            Log In
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? 'Logging in...' : 'Log In'}
           </Button>
         </form>
         <p className="text-sm text-center mt-4">
-          Don't have an account?{' '}
-          <Link href="/sign-up" className="text-blue-600">
+          Don&apos;t have an account?{' '}
+          <Link href="/sign-up" className="text-blue-600 hover:underline">
             Sign Up
           </Link>
         </p>

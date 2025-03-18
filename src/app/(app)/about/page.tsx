@@ -83,7 +83,7 @@ export default function AboutPage() {
               Our Story
             </h1>
             <p className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed backdrop-blur-sm bg-primary/10 p-6 rounded-lg border border-white/10">
-              Since 2014, TechStore has been at the forefront of premium electronics retail,
+              Since 2014, EliteDigital has been at the forefront of premium electronics retail,
               bringing cutting-edge technology and exceptional service to our valued customers.
             </p>
           </div>
@@ -147,7 +147,7 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Our Leadership</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Meet the dedicated team behind TechStore's success
+              Meet the dedicated team behind EliteDigital&apos;s success
             </p>
           </div>
 

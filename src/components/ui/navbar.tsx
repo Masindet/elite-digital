@@ -1,11 +1,14 @@
 'use client'
 
-import { ShoppingCart, Menu, X, Search, User } from 'lucide-react'
+import { ShoppingCart, Menu, X, Search } from 'lucide-react'
 import { Button } from './button'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { getUser } from '@/app/(app)/_actions/getUser'
 import LogoutButton from '@/app/(app)/components/LogoutButton'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { User } from 'lucide-react'
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -31,7 +34,7 @@ export function Navbar() {
     <nav className="bg-background border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo and primary navigation */}
+          {/* Logo + Navigation */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <span className="text-2xl font-bold">EliteDigital</span>
@@ -51,7 +54,7 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Search bar - hidden on mobile */}
+          {/* Search */}
           <div className="hidden md:block flex-1 max-w-md mx-4">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -65,7 +68,7 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Right side buttons */}
+          {/* Right buttons */}
           <div className="flex items-center">
             <Button variant="ghost" size="icon" className="relative ml-4" asChild>
               <Link href="/cart">
@@ -77,15 +80,24 @@ export function Navbar() {
             </Button>
 
             {user ? (
-              // User logged in: Show Profile + Logout
-              <div className="relative ml-4">
-                <User className="h-6 w-6 cursor-pointer" />
-                <div className="absolute right-0 mt-2 bg-white shadow-md rounded-md p-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div className="ml-4 cursor-pointer">
+                    <Avatar className="w-9 h-9 border border-border hover:ring-2 hover:ring-primary transition">
+                      <AvatarFallback className="bg-muted text-muted-foreground">
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-4 space-y-2 shadow-lg rounded-md">
+                  <div className="text-sm font-medium text-foreground truncate">
+                    Hello, {user?.email}
+                  </div>
                   <LogoutButton />
-                </div>
-              </div>
+                </PopoverContent>
+              </Popover>
             ) : (
-              // User not logged in: Show Login & Signup
               <>
                 <Button variant="outline" asChild className="ml-4">
                   <Link href="/login">Login</Link>
@@ -123,7 +135,6 @@ export function Navbar() {
               </Link>
             ))}
           </div>
-          {/* Mobile search */}
           <div className="px-2 pb-3">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

@@ -39,7 +39,10 @@ export default function SignUpPage() {
     setIsPending(false)
 
     if (result.success) {
-      router.push('/home')
+      window.location.href = '/' // Navigate to homepage
+      setTimeout(() => {
+        window.location.reload()
+      }, 10000)
     } else {
       setError(result.error || 'Sign-up failed')
     }
