@@ -6,13 +6,14 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { getUser } from '@/app/(app)/_actions/getUser'
 import LogoutButton from '@/app/(app)/components/LogoutButton'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { User } from 'lucide-react'
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<any>(null)
+  const [cartCount, setCartCount] = useState(0)
 
   useEffect(() => {
     async function fetchUser() {
@@ -21,6 +22,24 @@ export function Navbar() {
     }
     fetchUser()
   }, [])
+
+  // Fetch the cart count whenever the user is loaded or updated
+  useEffect(() => {
+    async function fetchCartCount() {
+      if (user && user.id) {
+        try {
+          const res = await fetch(`/api/cart/count?userId=${user.id}`)
+          if (res.ok) {
+            const data = await res.json()
+            setCartCount(data.count)
+          }
+        } catch (error) {
+          console.error('Failed to fetch cart count:', error)
+        }
+      }
+    }
+    fetchCartCount()
+  }, [user])
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -54,27 +73,13 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Search */}
-          <div className="hidden md:block flex-1 max-w-md mx-4">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-foreground/60" />
-              </div>
-              <input
-                type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-border rounded-md leading-5 bg-background text-foreground placeholder-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm"
-                placeholder="Search products..."
-              />
-            </div>
-          </div>
-
           {/* Right buttons */}
           <div className="flex items-center">
             <Button variant="ghost" size="icon" className="relative ml-4" asChild>
               <Link href="/cart">
                 <ShoppingCart className="h-5 w-5" />
                 <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-primary text-primary-foreground text-xs w-4 h-4 rounded-full flex items-center justify-center">
-                  0
+                  {cartCount}
                 </span>
               </Link>
             </Button>

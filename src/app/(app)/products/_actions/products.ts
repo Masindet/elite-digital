@@ -3,42 +3,40 @@
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import type { Where } from 'payload'
 
-type Filters = {
-  category?: string
-  brand?: string
-  minPrice?: number
-  maxPrice?: number
-  page?: number
-  limit?: number
-}
+const payload = await getPayload({ config })
 
-// app/products/_actions/products.ts
-export async function getProductsFromDB(filters: Filters = {}) {
-  const payload = await getPayload({ config })
+export async function getProducts(
+  category?: string,
+  brand?: string,
+  minPrice: number = 0,
+  maxPrice?: number, // Allow undefined maxPrice
+) {
+  try {
+    const where: any = {
+      price: {
+        greater_than_equal: minPrice,
+      },
+    }
 
-  //   console.log('FILTERS:', filters) // debug filters
-  //   const result = await payload.find({
-  //     collection: 'products',
-  //     limit: filters.limit || 9,
-  //     page: filters.page || 1,
-  //     where: {
-  //       price: {
-  //         greater_than_equal: filters.minPrice ?? 0,
-  //         less_than_equal: filters.maxPrice ?? 10000,
-  //       },
-  //       ...(filters.category ? { category: { equals: filters.category } } : {}),
-  //       ...(filters.brand ? { brand: { equals: filters.brand } } : {}),
-  //     },
-  //     sort: '-createdAt',
-  //   })
-  const result = await payload.find({
-    collection: 'products',
-    limit: 10,
-  })
+    // Ignore maxPrice if it's 0 or undefined
+    if (maxPrice && maxPrice > 0) {
+      where.price.less_than_equal = maxPrice
+    }
 
-  console.log('Result:', result.docs)
-  console.log('PRODUCTS FOUND:', result.docs.length) // debug result
+    if (category && category !== 'All') {
+      where.category = { equals: category }
+    }
 
-  return result
+    if (brand && brand !== 'All') {
+      where.brand = { equals: brand }
+    }
+
+    const response = await payload.find({ collection: 'products', where })
+    return response.docs
+  } catch (error) {
+    console.error('Error fetching products:', error)
+    return []
+  }
 }
